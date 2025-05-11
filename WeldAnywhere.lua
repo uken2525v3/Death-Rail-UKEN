@@ -49,7 +49,7 @@ function weld(item)
 				count+=1
 			end
 		end
-		if count > 1 then
+		if count >= 2 then
 			local args = {
 				item
 			}
