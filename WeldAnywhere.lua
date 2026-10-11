@@ -1,9 +1,19 @@
+--[[
+
+⚠️ FOR EDUCATIONAL PURPOSE ONLY; PLEASE DON'T USE THIS IN THE REAL GAME. ⚠️
+	THIS SCRIPT HAS NOT BEEN TESTED FOR A LONG TIME, SO IT'S GONNA BE
+	RISKY TO USE.
+
+]]
+
+--// Services //--
 local HttpsService = game:GetService("HttpService")
 local ScreenGui = Instance.new("ScreenGui")
 local weldb = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
 local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 
+--// UserInterface //--
 ScreenGui.Parent = game:FindFirstChild("CoreGui") and game:GetService("CoreGui") or game:GetService("Players").LocalPlayer.PlayerGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -28,27 +38,36 @@ UICorner.Parent = weldb
 
 UIAspectRatioConstraint.Parent = weldb
 
-function randomName(Instanc)
+--// Functions //--
+function randomName(Instanc) -- Generate Unique Id, idk why.
 	return HttpsService:GenerateGUID(false)
 end
-function currentDrag()
+function currentDrag() -- Getting the current object that being dragging.
 	local a = game:GetService("ReplicatedStorage").Client.Handlers.DraggableItemHandlers.ClientDraggableObjectHandler.DragHighlight.Adornee
 	return a:GetAttribute("IsBeingDragged") and a or nil
 end
-function weld(item)
+function weld(item) -- Weld the object (Most important).
 	if item then
+		-- Sent infomation to weld with a part in a train.
 		local args = {
 			item,
 			workspace:WaitForChild("default"):WaitForChild("Platform"):WaitForChild("Base"):WaitForChild("Base")
 		}
 		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Network"):WaitForChild("RemoteEvent"):WaitForChild("RequestWeld"):FireServer(unpack(args))
+
+		-- Yielding until the server weld the object
 		repeat wait() until item.PrimaryPart:FindFirstChild("DragWeldConstraint")
+
+		-- Fixing weld stacking (In case the object has the WeldConstraint more than one). 
+		-- Counting all class and add count when it detected WeldConstraint (Basically counting the WeldConstraint class).
 		local count = 0
 		for i,v in pairs(item:GetDescendants()) do
 			if v:IsA("WeldConstraint") then
 				count+=1
 			end
 		end
+
+		-- If the WeldConstraint have more than one, it's gonna unwelding by sending unweld event to sever by RemoteEvent.
 		if count >= 2 then
 			local args = {
 				item
@@ -57,6 +76,8 @@ function weld(item)
 		end
 	end
 end
+
+--// Key Pressing System
 local UIS = game:GetService("UserInputService")
 local Key = Enum.KeyCode.Z
 UIS.InputBegan:Connect(function(input)
@@ -67,12 +88,16 @@ UIS.InputBegan:Connect(function(input)
 		end
 	end
 end)
+
+--// Button Clicking System
 weldb.MouseButton1Click:Connect(function()
 	local item = currentDrag()
 	if item then
 		weld(item)
 	end
 end)
+
+--// Random Gui's name (Always make the gui name random. you can remove this line).
 spawn(function()
 	while wait() do
 		ScreenGui.Name = randomName()
